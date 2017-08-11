@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Перечень отгрузок</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Администратор DOSA</a>
+{% endblock %}
+
+{% block head %}
+    <style type="text/css">
+        #id_start_date, #id_end_date{
+            max-width: 135px;
+        }
+    </style>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li class="active"><a href="/admin/">Отгрузки</a></li>
+    <li><a href="/admin/cisterns/">Резервуары</a></li>
+    <li><a href="/admin/fuels/">Топливо</a></li>
+    <li><a href="/admin/keys/">Ключи</a></li>
+    <li><a href="/admin/users/">Пользователи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my clearfix">
+                <form method="get" class="form-inline navbar-form navbar-left" style="padding-left: 0;"> {% csrf_token %}
+                    <label for="id_filter_name" class="sr-only">имени</label>
+                    {{ user_filter.filter_name }}
+                    <label for="id_filter_car" class="sr-only">машине</label>
+                    {{ user_filter.filter_car }}
+                    <label for="id_filter_fuel" class="sr-only">типу жидкости</label>
+                    {{ fuel_filter.filter_fuel }}
+                    <label for="id_start_date_picker" class="sr-only">дате с</label>
+                    {{ date_filter.start_date }}
+                    <label for="id_end_date_picker" class="sr-only">по</label>
+                    {{ date_filter.end_date }}
+                    <input type="hidden" name="db_page" id="id_db_page"/>
+                    <button class="btn btn-default" type="submit" title="Фильтровать" id="filter">
+                        <span class="glyphicon glyphicon-filter"></span>
+                    </button>
+                    <a href="/admin/" class="btn btn-default" title="Сбросить фильтры">
+                        <span class="glyphicon glyphicon-remove-circle"></span>
+                    </a>
+                    <button class="btn btn-success" name="to_xls" value=1 type="submit" title="Экспорт в Excel">
+                        <span class="glyphicon glyphicon-list-alt"></span>
+                    </button>
+                    <button class="btn btn-warning" id="trash" name="delete" value=1 type="submit" title="Удалить записи">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+                </form>
+                <ul class="navbar-right navbar-nav nav" style="padding-top: 10px; padding-right: 5px;">
+                    <li>
+                        <div>
+                            <a href="/admin/settings/" class="btn btn-primary glyphicon glyphicon-cog" title="Настроить порт"></a>
+                        </div>
+                    </li>
+                    <li>
+                        <form method="get" style="padding-left: 2px;"> {% csrf_token %}
+                            <button class="btn btn-primary" name="refr_log" value=1 type="submit" title="Обновить БД">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <!-- Таблица отгрузок -->
+            <div>
+                <table class="local_user_table table table-striped" id="db_table">
+                    <thead>
+                        <tr>
+			                <th class="col-sm-1" style="text-align: center; vertical-align: middle;">#</th>
+			                <th style="vertical-align: middle;">Имя</th>
+			                <th style="vertical-align: middle;">Машина</th>
+                            <th style="vertical-align: middle;">Резервуар</th>
+                            <th style="vertical-align: middle;">Топливо</th>
+			                <th style="text-align: center; vertical-align: middle;">Ключ</th>
+			                <th>Отгружено</th>
+			                <th style="text-align: center;">Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in db %}
+                            <tr>
+                                <td style="text-align: center;">{{ forloop.counter0|add:db.start_index }}</td>
+                                <td>
+                                    {% if entry.user.name %}
+                                        {{ entry.user.name }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.user.car %}
+                                        {{ entry.user.car }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.user.cistern %}
+                                        <a href="/admin/cisterns/{{ entry.user.cistern.id }}">
+                                            {{ entry.user.cistern.name }}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.user.cistern %}
+                                        <a href="/admin/fuels/{{ entry.user.cistern.fuel.id }}">
+                                            {{ entry.user.cistern.fuel.name }}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">{{ entry.user.keys }}</td>
+                                <td>{{ entry.dosed }}</td>
+                                <td style="text-align: center;">{{ entry.date_time|date:'d.m.Y H:i' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <nav aria-label="Page navigation" style="text-align: center;">
+                    <ul class="pagination">
+                        {% if db.has_previous %}
+                            <li>
+                                <a title="1" id="1"
+                                   onclick="pag(this, 'id_db_page')">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a id="{{ db.previous_page_number }}"
+                                   onclick="pag(this, 'id_db_page')"
+                                   title="{{ db.previous_page_number }}">
+                                    <span aria-hidden="true">&lsaquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="disabled">
+                                <span aria-hidden="true">&laquo;</span>
+                            </li>
+                            <li class="disabled">
+                                <span aria-hidden="true">&lsaquo;</span>
+                            </li>
+                        {% endif %}
+                        <li class="disabled">
+                            <a href="?db_page={{ db.number }}">
+                                {{ db.number }}
+                            </a>
+                        </li>
+                        {% if db.has_next %}
+                            <li>
+                                <a id="{{ db.next_page_number }}"
+                                   onclick="pag(this, 'id_db_page')"
+                                   title="{{ db.next_page_number }}">
+                                    <span aria-hidden="true">&rsaquo;</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a id="{{ db.paginator.num_pages }}"
+                                   onclick="pag(this, 'id_db_page')"
+                                   title="{{ db.paginator.num_pages }}">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="disabled">
+                                <span aria-hidden="true">&rsaquo;</span>
+                            </li>
+                            <li class="disabled">
+                                <span aria-hidden="true">&raquo;</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#db_table").tablesorter({
+                 dateFormat : "ddmmyyyy",
+                headers: {
+                    7: {sorter: "shortDate"}
+                }
+            });
+            $('.form-control').click(function(){
+                $(this).val('')
+            });
+            jQuery.datetimepicker.setLocale('ru');
+            $(".datepicker").datetimepicker({
+                timepicker:false,
+                format:'d.m.Y'
+            });
+        });
+    </script>
+{% endblock %}

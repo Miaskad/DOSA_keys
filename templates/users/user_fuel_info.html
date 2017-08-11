@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Статистика топлива</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Пользователь DOSA</a>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li><a href="/user/">Отгрузки</a></li>
+    <li><a href="/user/cisterns/">Резервуары</a></li>
+    <li><a href="/user/keys/">Ключи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my clearfix">
+                <form method="get" class="form-inline navbar-form navbar-left" style="padding-left: 0;"> {% csrf_token %}
+                    <label for="id_filter_name" class="sr-only">имени</label>
+                    {{ user_filter.filter_name }}
+                    <label for="id_filter_car" class="sr-only">машине</label>
+                    {{ user_filter.filter_car }}
+                    <label for="id_start_date_picker" class="sr-only">дате с</label>
+                    {{ date_filter.start_date }}
+                    <label for="id_end_date_picker" class="sr-only">по</label>
+                    {{ date_filter.end_date }}
+                    <input type="hidden" name="db_page" id="id_db_page"/>
+                    <button class="btn btn-default" type="submit" title="Фильтровать" id="filter">
+                        <span class="glyphicon glyphicon-filter"></span>
+                    </button>
+                    <button class="btn btn-default" title="Сбросить фильтры" id="reset_filter" type="submit">
+                        <span class="glyphicon glyphicon-remove-circle"></span>
+                    </button>
+                    <button class="btn btn-success" name="to_xls" value=1 type="submit" title="Экспорт в Excel">
+                        <span class="glyphicon glyphicon-list-alt"></span>
+                    </button>
+                </form>
+                <ul class="navbar-right navbar-nav nav" style="padding-top: 10px; padding-right: 5px;">
+                    <li>
+                        <form method="get" style="padding-left: 2px;"> {% csrf_token %}
+                            <button class="btn btn-primary" name="refr_log" value=1 type="submit" title="Обновить БД">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <table class="local_user_table table table-striped" id="fuel_table">
+                    <thead>
+                        <tr>
+			                <th class="col-sm-1" style="text-align: center; vertical-align: middle;">#</th>
+			                <th style="vertical-align: middle;">Имя</th>
+			                <th style="vertical-align: middle;">Машина</th>
+                            <th style="vertical-align: middle;">Линия</th>
+			                <th style="text-align: center; vertical-align: middle;">Ключ</th>
+			                <th>Отгружено</th>
+			                <th style="text-align: center;">Дата</th>
+                            <th style="text-align: center;">Остаток топлива</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in db %}
+                            <tr>
+                                <td style="text-align: center;">{{ forloop.counter0|add:db.start_index }}</td>
+                                <td>
+                                    {% if entry.user.name %}
+                                        {{ entry.user.name }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.user.car %}
+                                        {{ entry.user.car }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/user/cisterns/{{ entry.cistern.id }}">
+                                        {{ entry.cistern.name }}
+                                    </a>
+                                </td>
+                                <td style="text-align: center;">{{ entry.user.keys }}</td>
+                                <td>{{ entry.dosed }}</td>
+                                <td style="text-align: center;">{{ entry.date_time|date:'d.m.Y H:i' }}</td>
+                                <td>{{ entry.fuel_volume }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <nav aria-label="Page navigation" style="text-align: center;">
+                    <ul class="pagination">
+                        {% if db.has_previous %}
+                            <li>
+                                <a title="1" id="1"
+                                   onclick="pag(this, 'id_db_page')">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a id="{{ db.previous_page_number }}"
+                                   onclick="pag(this, 'id_db_page')"
+                                   title="{{ db.previous_page_number }}">
+                                    <span aria-hidden="true">&lsaquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="disabled">
+                                <span aria-hidden="true">&laquo;</span>
+                            </li>
+                            <li class="disabled">
+                                <span aria-hidden="true">&lsaquo;</span>
+                            </li>
+                        {% endif %}
+                        <li class="disabled">
+                            <a href="?db_page={{ db.number }}">
+                                {{ db.number }}
+                            </a>
+                        </li>
+                        {% if db.has_next %}
+                            <li>
+                                <a id="{{ db.next_page_number }}"
+                                   onclick="pag(this, 'id_db_page')"
+                                   title="{{ db.next_page_number }}">
+                                    <span aria-hidden="true">&rsaquo;</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a id="{{ db.paginator.num_pages }}"
+                                   onclick="pag(this, 'id_db_page')"
+                                   title="{{ db.paginator.num_pages }}">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="disabled">
+                                <span aria-hidden="true">&rsaquo;</span>
+                            </li>
+                            <li class="disabled">
+                                <span aria-hidden="true">&raquo;</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#db_table").tablesorter({
+                 dateFormat : "ddmmyyyy",
+                headers: {
+                    6: {sorter: "shortDate"}
+                }
+            });
+            $('.form-control').click(function(){
+                $(this).val('')
+            });
+
+            $('#reset_filter').click(function() {
+                $('.form-control').val('')
+            });
+            jQuery.datetimepicker.setLocale('ru');
+            $(".datepicker").datetimepicker({
+                timepicker:false,
+                format:'d.m.Y'
+            });
+        });
+    </script>
+{% endblock %}

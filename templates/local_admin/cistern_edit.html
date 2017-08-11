@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Редактирование резервуара</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Администратор DOSA</a>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li><a href="/admin/">Отгрузки</a></li>
+    <li><a href="/admin/cisterns/">Резервуары</a></li>
+    <li><a href="/admin/fuels/">Топливо</a></li>
+    <li><a href="/admin/keys/">Ключи</a></li>
+    <li><a href="/admin/users/">Пользователи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if edit_cist.non_field_errors %}
+        {% for error in edit_cist.non_field_errors %}
+            <div class="alert alert-danger">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% for field in edit_cist %}
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <a class="close" data-dismiss="alert">×</a>
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my"><h4>Редактирование резервуара</h4></div>
+            <div class="jumbotron">
+                <form method="post" class="form-horizontal"> {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_cistern_name" class="col-sm-4 control-label">Имя резервуара:</label>
+                        <div class="col-sm-6">{{ edit_cist.name }}</div>
+                        <label for="id_start_volume" class="col-sm-4 control-label">Начальный объем:</label>
+                        <div class="col-sm-6" >{{ edit_cist.start_volume }}</div>
+                        <label for="id_max_volume" class="col-sm-4 control-label">Максимальный объем:</label>
+                        <div class="col-sm-6">{{ edit_cist.max_volume }}</div>
+                        <label for="id_cistern_type" class="col-sm-4 control-label">Тип резервуара:</label>
+                        <div class="col-sm-6">{{ edit_cist.cistern_type }}</div>
+                        <label for="id_fuel" class="col-sm-4 control-label">Тип топлива:</label>
+                        <div class="col-sm-6">
+                            {% if fuel_types %}
+                                <select name="select_fuel" id="id_fuel" class="form-control">
+                                    <option value="{{ cur_fuel }}">{{ cur_fuel }}</option>
+                                    {% for fuel in fuel_types %}
+                                        <option value="{{ fuel.name }}">{{ fuel.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <select name="select_line" id="id_fuel" class="form-control" disabled>
+                                    <option value="{{ cur_fuel }}">{{ cur_fuel }}</option>
+                                </select>
+                            {% endif %}
+                        </div>
+                        <label for="id_sel" class="col-sm-4 control-label">Ключи:</label>
+                        <div class="col-sm-6 form-inline">
+                            <select id="id_sel" name="keys" multiple class="form-control" style="float: left;" size="4" required>
+                                {% for entry in selected %}
+                                    <option selected>{{ entry.keys }}</option>
+                                {% endfor %}
+                                {% for entry in can_select %}
+                                    <option>{{ entry.keys }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-md-offset-9">
+                            <button id="send" class="btn btn-block btn-lg btn-file" type="submit">Редактировать</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,120 @@
+.tab-head {
+    max-height: 50px;
+    margin-top: 10px;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+    margin-right: 4px;
+    background-color: #333333;
+    border-color: #000000;
+    color: #9D9D9D;
+    margin-left: 4px;
+}
+
+.btn-file:hover {
+    background-color: #080808;
+    border-color: #000000;
+    color: #ffffff;
+}
+
+.btn-file input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    transform: translate(-300px, 0) scale(4);
+    font-size: 23px;
+    direction: ltr;
+    cursor: pointer;
+}
+
+/* Fix for IE 7: */
+* + html .btn-file {
+    padding: 2px 15px;
+    margin: 1px 0 0 0;
+}
+
+.panel {
+    margin-top: 15px;
+}
+
+.panel-my {
+    border-color: #000000;
+    background-color: #EEE;
+}
+
+.panel-my>.panel-heading-my {
+    background-color: #333333;
+    border-color: #333333;
+    color: #ffffff;
+    padding: 5px 15px;
+}
+
+.form-control {
+    margin: 3px;
+}
+
+#id_start_date, #id_end_date, #id_date_time {
+    margin-top: 0;
+}
+
+#disabledInput {
+    margin-bottom: 6px;
+}
+
+.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+    color: #fff;
+    background-color: #222;
+    border-color: #080808;
+    margin-top: 5px;
+}
+
+.nav-pills > li > a{
+    margin-top: 5px;
+}
+
+.nav>li>a {
+    color: #080808;
+}
+
+.table th.header {
+    cursor: pointer;
+}
+
+.table th.tablesorter-headerDesc,
+.table th.tablesorter-headerAsc {
+    background: #f9f9f9;
+    position: relative;
+}
+.table th.tablesorter-headerDesc:after,
+.table th.tablesorter-headerAsc:after {
+    font-size: 0.8em;
+        position: absolute;
+    top: 50%;
+    right: 10px;
+    margin-top: -0.4em;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.table th.tablesorter-headerDesc:after {
+   content: "\e094";
+}
+.table th.tablesorter-headerAsc:after {
+   content: "\e093";
+}
+
+@media (min-width: 1200px) {
+    .container {
+        width: 1230px;
+    }
+}

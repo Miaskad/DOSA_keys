@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Добавление резервуара</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Администратор DOSA</a>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li><a href="/admin/">Отгрузки</a></li>
+    <li><a href="/admin/cisterns/">Резервуары</a></li>
+    <li><a href="/admin/fuels/">Топливо</a></li>
+    <li><a href="/admin/keys/">Ключи</a></li>
+    <li><a href="/admin/users/">Пользователи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if add_cist.non_field_errors %}
+        {% for error in add_cist.non_field_errors %}
+            <div class="alert alert-danger">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% for field in add_cist %}
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <a class="close" data-dismiss="alert">×</a>
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my"><h4>Добавление резервуара</h4></div>
+            <div class="jumbotron">
+                <form method="post" class="form-horizontal"> {% csrf_token %}
+                    <div class="form-group">
+                        {% load widget_tweaks %}
+                        <label for="id_cistern_name" class="col-sm-4 control-label">Имя резервуара:</label>
+                        <div class="col-sm-6">{{ add_cist.name|attr:'required:true' }}</div>
+                        <label for="id_start_volume" class="col-sm-4 control-label">Начальный объем:</label>
+                        <div class="col-sm-6" >{{ add_cist.start_volume|attr:'required:true' }}</div>
+                        <label for="id_max_volume" class="col-sm-4 control-label">Максимальный объем:</label>
+                        <div class="col-sm-6">{{ add_cist.max_volume|attr:'required:true' }}</div>
+                        <label for="id_cistern_type" class="col-sm-4 control-label">Тип резервуара:</label>
+                        <div class="col-sm-6">{{ add_cist.cistern_type|attr:'required:true' }}</div>
+                        <label for="id_fuel" class="col-sm-4 control-label">Тип топлива:</label>
+                        <div class="col-sm-6">
+                            <select name="select_fuel" id="id_fuel" class="form-control" required>
+                                {% for fuel in fuel_types %}
+                                    <option value="{{ fuel.name }}">{{ fuel.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <label for="id_keys" class="col-sm-4 control-label">Ключи:</label>
+                        <div class="col-sm-6">
+                            <select name="keys" size="4" multiple id="id_keys" class="form-control" required>
+                                {% for entry in keys %}
+                                    <option>{{ entry.keys }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-md-offset-9">
+                            <button class="btn btn-block btn-lg btn-file" type="submit">Добавить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

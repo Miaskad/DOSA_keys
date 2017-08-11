@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Резервуары</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Пользователь DOSA</a>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li><a href="/user/">Отгрузки</a></li>
+    <li class="active"><a href="/user/cisterns/">Резервуары</a></li>
+    <li><a href="/user/keys/">Ключи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my clearfix">
+                <div class="form-inline navbar-form navbar-left">
+                    <form method="get" class="form-inline navbar-form navbar-left" style="padding-left: 0;"> {% csrf_token %}
+                        <label for="id_fuel" class="sr-only">Топливо</label>
+                        <select name="select_fuel" id="id_fuel" class="form-control" style="min-width: 200px;">
+                            <option value=""></option>
+                            {% for fuel in fuels %}
+                                <option value="{{ fuel.name }}">{{ fuel.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-default" type="submit">Фильтровать</button>
+                    </form>
+                </div>
+            </div>
+            <div>
+                <table class="local_user_table table table-striped" id="cisterns_table">
+                    <thead>
+                        <tr>
+			                <th class="col-sm-1" style="text-align: center;">#</th>
+			                <th class="col-sm-1" style="text-align: center;">Линия</th>
+                            <th class="col-sm-3" style="text-align: center;">Топливо</th>
+			                <th class="col-sm-4"></th>
+			                <th class="col-sm-1" style="text-align: center;">Заполненность</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cist, vol, per in cists %}
+                            <tr>
+                                <td style="vertical-align: middle; text-align: center;">{{ forloop.counter }}</td>
+                                <td style="vertical-align: middle; text-align: center;">
+                                    <a href="/user/cisterns/{{ cist.id }}">{{ cist.name }}</a></td>
+                                <td style="vertical-align: middle;">
+                                    <a href="/user/fuels/{{ cist.fuel.id }}">{{ cist.fuel.name }}</a></td>
+                                <td style="vertical-align: middle; text-align: center;">
+                                    <img src="/static/img/{{ cist.cistern_type }}_{{ per }}.PNG" /></td>
+                                <td style="vertical-align: middle; text-align: center;">{{ vol }}/{{ cist.max_volume }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

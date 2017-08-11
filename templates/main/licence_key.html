@@ -1,0 +1,60 @@
+{% load static %}<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>DOSA</title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/starter-template.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/general.css" %}">
+    <script type="text/javascript" src="{% static "js/jquery-1.11.2.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/general.js" %}"></script>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand">DOSA</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <a class="close" data-dismiss="alert">×</a>
+                    {{ message|safe }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    {% if request.user.is_superuser %}
+        <div class="container">
+            <div class="panel panel-default panel-my" style="width: 75%; margin: auto; margin-top: 20px;">
+                <div class="panel-heading panel-heading-my"><h4>Активация</h4></div>
+                <div class="jumbotron">
+                    <form method="post" class="form-horizontal"> {% csrf_token %}
+                        <div class="form-group">
+                            <label for="inputText" class="sr-only">Ключ</label>
+                            <input type="text" id="inputText" class="form-control" placeholder="Ключ" name="key_ch" size="45"
+                                   required autofocus>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 col-md-offset-9">
+                                <button class="btn btn-block btn-lg btn-file" type="submit">Активировать</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</body>
+</html>

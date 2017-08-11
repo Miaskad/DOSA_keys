@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Пользователи</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Администратор DOSA</a>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li><a href="/admin/">Отгрузки</a></li>
+    <li><a href="/admin/cisterns/">Резервуары</a></li>
+    <li><a href="/admin/fuels/">Топливо</a></li>
+    <li><a href="/admin/keys/">Ключи</a></li>
+    <li class="active"><a href="/admin/users/">Пользователи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div id="disable_lu" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #333333; border-color: #333333; color: #ffffff;">
+                    Удаление пользователя
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post">{% csrf_token %}
+                        <input type="hidden" name="user_name" id="system_user"/>
+                        <p style="text-align: center;">Вы уверены, что хотите удалить данного пользователя?</p>
+                        <div class="row">
+                            <div class="col-md-4 col-md-offset-5">
+                                <button class="btn btn-default btn-file" type="submit">Удалить</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="width: 80%;">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my clearfix">
+                <form method="post" class="form-inline navbar-form navbar-left"> {% csrf_token %}
+                    <label for="id_filter_name" class="sr-only">Фамилия</label>
+                        {{ user_filter.filter_name }}
+                    <button class="btn btn-default" type="submit">Фильтровать</button>
+                </form>
+                <div class="input-group pull-right" style="padding-top: 9px;">
+                    <a href="/admin/users/add-user/" class="btn btn-info glyphicon glyphicon-user"
+                       title="Зарегистрировать пользователя">+</a>
+                </div>
+            </div>
+
+            <!-- Таблица пользователей системы -->
+            <div>
+                <table class="local_user_table table table-striped" id="users_table">
+                    <thead>
+                        <tr>
+			                <th class="col-sm-1" style="text-align: center; vertical-align: middle;">#</th>
+			                <th style="vertical-align: middle;">Логин</th>
+			                <th style="vertical-align: middle;">Имя</th>
+			                <th style="vertical-align: middle;">Фамилия</th>
+                            <th style="vertical-align: middle;">E-mail</th>
+                            <th class="col-sm-1" style="vertical-align: middle;"></th>
+                            <th class="col-sm-1" style="vertical-align: middle;"></th>
+                            <th class="col-sm-1" style="vertical-align: middle;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in udb %}
+                            <tr>
+                                <td style="text-align: center;">{{ forloop.counter }}</td>
+                                <td>{{ entry.username }}</td>
+                                <td>{{ entry.first_name }}</td>
+                                <td>{{ entry.last_name }}</td>
+                                <td>{{ entry.email }}</td>
+                                <td style="text-align: center;">
+                                    {% if not entry.is_superuser %}
+                                        <a href="/admin/users/edit/{{entry.id}}"
+                                           class="button edit btn btn-default glyphicon glyphicon-pencil"></a>
+                                    {% endif %}
+
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if not entry.is_superuser %}
+                                        <a href="/admin/users/chpass/{{entry.id}}"
+                                           class="button edit btn btn-default glyphicon glyphicon-refresh"></a>
+                                    {% endif %}
+
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if not entry.is_superuser %}
+                                        <button class="edit btn btn-default" data-toggle="modal"
+                                                data-target="#disable_lu" onclick="dis_lu(this)" id="{{ entry.username }}">
+                                        <span class="glyphicon glyphicon-trash"></span></button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#users_table").tablesorter({
+                 dateFormat : "ddmmyyyy",
+                headers: {
+                    5: {sorter: false},
+                    6: {sorter: false}
+                }
+            });
+            $('#surname').click(function(){
+                $(this).val('')});
+        });
+    </script>
+
+{% endblock %}

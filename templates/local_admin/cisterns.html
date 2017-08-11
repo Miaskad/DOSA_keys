@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Резервуары</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Администратор DOSA</a>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li><a href="/admin/">Отгрузки</a></li>
+    <li class="active"><a href="/admin/cisterns/">Резервуары</a></li>
+    <li><a href="/admin/fuels/">Топливо</a></li>
+    <li><a href="/admin/keys/">Ключи</a></li>
+    <li><a href="/admin/users/">Пользователи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my clearfix">
+                <div class="form-inline navbar-form navbar-left">
+                    <form method="get" class="form-inline navbar-form navbar-left" style="padding-left: 0;"> {% csrf_token %}
+                        <label for="id_fuel" class="sr-only">Топливо</label>
+                        <select name="select_fuel" id="id_fuel" class="form-control" style="min-width: 200px;">
+                            <option value=""></option>
+                            {% for fuel in fuels %}
+                                <option value="{{ fuel.name }}">{{ fuel.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-default" type="submit">Фильтровать</button>
+                    </form>
+                </div>
+                <div class="input-group pull-right" style="padding-top: 15px;">
+                    <a href="/admin/cisterns/add-cistern/" class="btn btn-default glyphicon glyphicon-oil"
+                       title="Добавить резервуар">+</a>
+                </div>
+            </div>
+            <div>
+                <table class="local_user_table table table-striped" id="cisterns_table">
+                    <thead>
+                        <tr>
+			                <th class="col-sm-1" style="text-align: center;">#</th>
+			                <th class="col-sm-1" style="text-align: center;">Линия</th>
+                            <th class="col-sm-3" style="text-align: center;">Топливо</th>
+			                <th class="col-sm-4"></th>
+			                <th class="col-sm-1" style="text-align: center;">Заполненность</th>
+			                <th class="col-sm-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cist, vol, per in cists %}
+                            <tr>
+                                <td style="vertical-align: middle; text-align: center;">{{ forloop.counter }}</td>
+                                <td style="vertical-align: middle; text-align: center;">
+                                    <a href="/admin/cisterns/{{ cist.id }}">{{ cist.name }}</a></td>
+                                <td style="vertical-align: middle; text-align: center;">
+                                    <a href="/admin/fuels/{{ cist.fuel.id }}">
+                                        {{ cist.fuel.name }}
+                                    </a>
+                                </td>
+                                <td style="vertical-align: middle; text-align: center;">
+                                    <img src="/static/img/{{ cist.cistern_type }}_{{ per }}.PNG" /></td>
+                                <td style="vertical-align: middle; text-align: center;">{{ vol }}/{{ cist.max_volume }}</td>
+                                <td style="vertical-align: middle; text-align: center;">
+                                    <a href="/admin/cisterns/edit/{{cist.id}}"
+                                           class="button edit btn btn-default glyphicon glyphicon-pencil"></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#cisterns_table").tablesorter({
+                headers: {
+                    3: {sorter: false},
+                    4: {sorter: false},
+                    5: {sorter: false}
+                }
+            });
+        });
+    </script>
+{% endblock %}

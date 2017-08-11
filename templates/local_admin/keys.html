@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Перечень ключей</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Администратор DOSA</a>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li><a href="/admin/">Отгрузки</a></li>
+    <li><a href="/admin/cisterns/">Резервуары</a></li>
+    <li><a href="/admin/fuels/">Топливо</a></li>
+    <li class="active"><a href="/admin/keys/">Ключи</a></li>
+    <li><a href="/admin/users/">Пользователи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if add_keys.non_field_errors %}
+        {% for error in add_keys.non_field_errors %}
+            <div class="alert alert-danger">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% for field in add_keys %}
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <a class="close" data-dismiss="alert">×</a>
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="width: 80%">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my clearfix">
+                <form method="get" class="form-inline navbar-form navbar-left"> {% csrf_token %}
+                    <label for="id_filter_name" class="sr-only">имени</label>
+                    {{ user_filter.filter_name }}
+                    <label for="id_filter_car" class="sr-only">машине</label>
+                    {{ user_filter.filter_car }}
+                    <button class="btn btn-default" type="submit">Фильтровать</button>
+                    <button class="btn btn-success" name="to_xls" value=1 type="submit" title="Экспорт в Excel">
+                        <span class="glyphicon glyphicon-list-alt"></span>
+                    </button>
+                </form>
+                <form method="post" class="form-inline navbar-form navbar-left" enctype="multipart/form-data"
+                        style="margin-top: 10px;"> {% csrf_token %}
+                    <span class="btn btn-file btn-default" style="background-color: #fff; border-color: #ccc; color: #333">
+                        <i class="icon-plus"> </i><span>Файл ключей</span>
+                        {{ add_keys }}
+                    </span>
+                    <button class="btn btn-info" type="submit" title="Добавить ключи" id="id_move">
+                        <span class="glyphicon glyphicon-open-file"></span>
+                    </button>
+                </form>
+                <ul class="navbar-right navbar-nav nav" style="margin-top: 10px; margin-right: 2px;">
+                    <li>
+                        <form method="get"> {% csrf_token %}
+                            <button class="btn btn-primary" name="refr_keys" value=1 type="submit" title="Обновить БД">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Таблица пользователей -->
+            <div>
+                <table class="local_user_table table table-striped" id="users_table">
+                    <thead>
+                        <tr>
+			                <th class="col-sm-1" style="text-align: center; vertical-align: middle;">#</th>
+			                <th style="vertical-align: middle;">Имя</th>
+			                <th style="vertical-align: middle;">Машина</th>
+			                <th style="text-align: center; vertical-align: middle;">Ключ</th>
+                            <th style="vertical-align: middle;">Резервуар</th>
+                            <th style="vertical-align: middle;">Комментарий</th>
+                            <th style="vertical-align: middle;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in udb %}
+                            <tr>
+                                <td style="text-align: center;">{{ forloop.counter }}</td>
+                                <td>
+                                    {% if entry.name %}
+                                        {{ entry.name }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.car %}
+                                        {{ entry.car }}
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">{{ entry.keys }}</td>
+                                <td>
+                                    {% if entry.cistern %}
+                                        <a href="/admin/cisterns/{{ entry.cistern.id }}">
+                                            {{ entry.cistern.name }}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.comment %}
+                                        {{ entry.comment }}
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                        <a href="/admin/keys/edit/{{entry.id}}"
+                                           class="button edit btn btn-default glyphicon glyphicon-pencil"></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#users_table").tablesorter({
+                headers: {
+                    5: {sorter: false},
+                    6: {sorter: false}
+                }
+            });
+            $('.form-control').click(function(){
+                $(this).val('')});
+        });
+    </script>
+    <script type="text/javascript">
+        (function ($) {
+            $(function () {
+                $('.btn-file').each(function () {
+                    var self = this;
+                    $('input[type=file]', this).change(function () {
+                        // get value
+                        var value = $(this).val();
+                        // get file name
+                        var fileName = value.substring(value.lastIndexOf('/') + 1);
+                        // get file extension
+                        var fileExt = fileName.split('.').pop().toLowerCase();
+                        // append file info
+                        $('<span id="id_info"><i class="icon-file icon-' + fileExt + '"></i> ' + fileName + '</span>').insertAfter(self);
+                    });
+                });
+            });
+        })(jQuery);
+    </script>
+{% endblock %}

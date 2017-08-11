@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>DOSA</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Администратор DOSA</a>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li><a href="/admin/">Отгрузки</a></li>
+    <li><a href="/admin/cisterns/">Резервуары</a></li>
+    <li><a href="/admin/fuels/">Топливо</a></li>
+    <li><a href="/admin/keys/">Ключи</a></li>
+    <li><a href="/admin/users/">Пользователи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="width: 70%">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my"></div>
+            <div class="jumbotron">
+                <form method="post" class="form-horizontal"> {% csrf_token %}
+                    <div class="form-group">
+                        <div class="col-md-4 col-md-offset-4">
+                            <button class="btn btn-block btn-lg btn-file" type="submit" name="delete_db" value="1">
+                                Очистить БД сервера
+                            </button>
+                        </div>
+                        <div class="col-md-4 col-md-offset-4">
+                            <button class="btn btn-block btn-lg btn-file" type="submit" name="clean_log" value="1">
+                                Очистить БД устройства
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

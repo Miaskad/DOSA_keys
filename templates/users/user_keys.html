@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Перечень ключей</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Пользователь DOSA</a>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li><a href="/user/">Отгрузки</a></li>
+    <li><a href="/user/cisterns/">Резервуары</a></li>
+    <li class="active"><a href="/user/keys/">Ключи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="width: 80%">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my clearfix">
+                <form method="get" class="form-inline navbar-form navbar-left"> {% csrf_token %}
+                    <label for="id_filter_name" class="sr-only">имени</label>
+                    {{ user_filter.filter_name }}
+                    <label for="id_filter_car" class="sr-only">машине</label>
+                    {{ user_filter.filter_car }}
+                    <button class="btn btn-default" type="submit">Фильтровать</button>
+                    <button class="btn btn-success" name="to_xls" value=1 type="submit" title="Экспорт в Excel">
+                        <span class="glyphicon glyphicon-list-alt"></span>
+                    </button>
+                </form>
+
+                <ul class="navbar-right navbar-nav nav" style="padding-top: 10px; padding-right: 10px;">
+                    <li style="padding-right: 2px;">
+                        <form method="get"> {% csrf_token %}
+                            <button class="btn btn-primary" name="refr_keys" value=1 type="submit" title="Обновить БД">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Таблица пользователей -->
+            <div>
+                <table class="local_user_table table table-striped" id="users_table">
+                    <thead>
+                        <tr>
+			                <th class="col-sm-1" style="text-align: center; vertical-align: middle;">#</th>
+			                <th style="vertical-align: middle;">Имя</th>
+			                <th style="vertical-align: middle;">Машина</th>
+			                <th style="text-align: center; vertical-align: middle;">Ключ</th>
+                            <th style="vertical-align: middle;">Резервуар</th>
+                            <th style="vertical-align: middle;">Комментарий</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in udb %}
+                            <tr>
+                                <td style="text-align: center;">{{ forloop.counter }}</td>
+                                <td>
+                                    {% if entry.name %}
+                                        {{ entry.name }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.car %}
+                                        {{ entry.car }}
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">{{ entry.keys }}</td>
+                                <td>
+                                    {% if entry.cistern %}
+                                        <a href="/user/cisterns/{{ entry.cistern.id }}">
+                                            {{ entry.cistern.name }}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.comment %}
+                                        {{ entry.comment }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#users_table").tablesorter({
+                headers: {
+                    5: {sorter: false}
+                }
+            });
+            $('.form-control').click(function(){
+                $(this).val('')});
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>Редактирование ключа</title>
+{% endblock %}
+
+{% block navbar-header %}
+    <a class="navbar-brand">Администратор DOSA</a>
+{% endblock %}
+
+{% block navigation %}
+    <!-- Определение активной вкладки -->
+    <li><a href="/admin/">Отгрузки</a></li>
+    <li><a href="/admin/cisterns/">Резервуары</a></li>
+    <li><a href="/admin/fuels/">Топливо</a></li>
+    <li><a href="/admin/keys/">Ключи</a></li>
+    <li><a href="/admin/users/">Пользователи</a></li>
+{% endblock %}
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if edit_form.non_field_errors %}
+        {% for error in edit_form.non_field_errors %}
+            <div class="alert alert-danger">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% for field in edit_form %}
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <a class="close" data-dismiss="alert">×</a>
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default panel-my">
+            <div class="panel-heading panel-heading-my"><h4>Редактирование владельца ключа</h4></div>
+            <div class="jumbotron">
+                <form method="post" class="form-horizontal"> {% csrf_token %}
+                    <div class="form-group">
+                        {% load widget_tweaks %}
+                        <label for="id__name" class="col-sm-3 control-label">Имя:</label>
+                        <div class="col-sm-7">{{ edit_form.name }}</div>
+                        <label for="id_car" class="col-sm-3 control-label">Машина:</label>
+                        <div class="col-sm-7">{{ edit_form.car }}</div>
+                        <label for="id_keys" class="col-sm-3 control-label">Ключ:</label>
+                        <div class="col-sm-7">{{ edit_form.keys|attr:'readonly' }}</div>
+                        <label for="id_comment" class="col-sm-3 control-label">Комментарий:</label>
+                        <div class="col-sm-7">{{ edit_form.comment }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-md-offset-9">
+                            <button class="btn btn-block btn-lg btn-file" type="submit">Редактировать</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

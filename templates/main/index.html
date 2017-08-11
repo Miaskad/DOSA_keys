@@ -1,0 +1,52 @@
+{% load static %}<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>DOSA</title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/cover.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/signin.css" %}">
+    <script type="text/javascript" src="{% static "js/jquery-1.11.2.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand">DOSA</a>
+        </div>
+        <!--/.nav-collapse -->
+    </div>
+</nav>
+<div class="site-wrapper">
+    <div class="container">
+        {% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">  <!-- singular -->
+                <a class="close" data-dismiss="alert">×</a>
+                {{ message|safe }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+    </div>
+    <div class="container">
+        <form class="form-signin" method="post"> {% csrf_token %}
+            <h2 class="form-signin-heading">Выполните вход</h2>
+            <label for="inputText" class="sr-only">Имя пользователя</label>
+            <input type="text" id="inputText" class="form-control" placeholder="Имя пользователя" name="username"
+                   required autofocus>
+            <label for="inputPassword" class="sr-only">Пароль</label>
+            <input type="password" id="inputPassword" class="form-control" placeholder="Пароль" name="password"
+                   required>
+            <button class="btn btn-lg btn-default btn-block" type="submit">Войти</button>
+        </form>
+
+    </div>
+    <!-- /container -->
+
+</div>
+</body>
+</html>
